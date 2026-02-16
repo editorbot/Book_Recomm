@@ -1,20 +1,18 @@
-import 'package:aws_book/models/recommendation.dart';
-import 'package:aws_book/services/recommendation_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../models/recommendation.dart';
+import '../services/recommendation_service.dart';
 
-class MainScreen extends StatefulWidget {
+class RecommendScreen extends StatefulWidget {
   final String type; // 'Books' or 'Movies'
 
-
-  const MainScreen({super.key, required this.type});
+  const RecommendScreen({super.key, required this.type});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<RecommendScreen> createState() => _RecommendScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _RecommendScreenState extends State<RecommendScreen> {
   final _service = RecommendationService();
   final _preferencesController = TextEditingController();
   List<Recommendation> _recommendations = [];
@@ -45,114 +43,36 @@ class _MainScreenState extends State<MainScreen> {
       setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
-      appBar: AppBar(
-        backgroundColor: Colors.blue.shade50,
-        leading: IconButton(onPressed: (){}, icon: Icon(Icons.rocket)) ,
-        actions: [
-
-
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(onPressed: () {  }, icon: Icon(Icons.account_circle),
-           ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(onPressed: () {  }, icon: Icon(Icons.logout),
-            ),
-          )
-
-        ],
-      ),
-
+      appBar: AppBar(title: Text('${widget.type} Recommender')),
       body: Padding(
-        padding: const EdgeInsets.only(left: 46,right: 46),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.white
+            TextField(
+              controller: _preferencesController,
+              decoration: InputDecoration(
+                labelText: 'Your preferences (e.g. "mind-bending sci-fi thrillers")',
+                border: OutlineInputBorder(),
               ),
-
-              child: Column(
-                children: [
-                  TextField(
-
-                    controller: _preferencesController,
-                    decoration: InputDecoration(
-                      hintText: 'Your preferences (e.g. "mind-bending sci-fi thrillers")',
-                      hintStyle: TextStyle(
-                        color: Colors.blueGrey.withAlpha(70)
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueGrey.withAlpha(0)
-                        )
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.blueGrey.withAlpha(0)
-                        )
-                      )
-
-                    ),
-
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Container(
-                        width: 160,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.blueGrey.withAlpha(0), ),
-
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-
-                            isExpanded: true,
-                            icon: const Icon(CupertinoIcons.chevron_compact_down),
-                            items: ['Books', 'Movies']
-                                .map((value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(value),
-                            ))
-                                .toList(),
-                            onChanged: (value) {
-
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
+              maxLines: 3,
             ),
-
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _isLoading ? null : _getRecommendations,
               child: Text('Get ${widget.type} Recommendations'),
             ),
             const SizedBox(height: 24),
+
             if (_isLoading)
               const SpinKitFadingCircle(color: Colors.blue, size: 50.0),
 
             if (_error != null)
               Text(_error!, style: const TextStyle(color: Colors.red)),
+
             if (_recommendations.isNotEmpty)
               Expanded(
                 child: ListView.builder(
@@ -206,9 +126,13 @@ class _MainScreenState extends State<MainScreen> {
               ),
           ],
         ),
-
-
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _preferencesController.dispose();
+    super.dispose();
   }
 }

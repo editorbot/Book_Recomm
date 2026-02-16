@@ -1,4 +1,5 @@
 import 'package:aws_book/screens/main_screen.dart';
+import 'package:aws_book/screens/main_screen2.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MainScreen(),
+      home: MainScreen(type: 'Books'),
       debugShowCheckedModeBanner: false,
     );
   }
