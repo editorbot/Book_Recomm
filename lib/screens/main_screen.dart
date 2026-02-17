@@ -21,6 +21,14 @@ class _MainScreenState extends State<MainScreen> {
   bool _isLoading = false;
   String? _error;
 
+  late String _selectedType;
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.type;  // Start with whatever was passed from parent
+    print('🟢 initState - _selectedType: $_selectedType');
+    print('🟢 initState - widget.type: ${widget.type}');
+  }
   Future<void> _getRecommendations() async {
     if (_preferencesController.text.trim().isEmpty) return;
 
@@ -32,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
     try {
       final results = await _service.getRecommendations(
         preferences: _preferencesController.text.trim(),
-        type: widget.type.toLowerCase(),
+        type: _selectedType.toLowerCase(),
       );
       setState(() {
         _recommendations = results;
@@ -89,7 +97,7 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: InputDecoration(
                       hintText: 'Your preferences (e.g. "mind-bending sci-fi thrillers")',
                       hintStyle: TextStyle(
-                        color: Colors.blueGrey.withAlpha(70)
+                        color: Colors.blueGrey.withAlpha(70),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
@@ -110,7 +118,7 @@ class _MainScreenState extends State<MainScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Container(
-                        width: 160,
+                        width: 120,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -120,17 +128,31 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
+                          hint: Text(_selectedType),
 
-                            isExpanded: true,
+
                             icon: const Icon(CupertinoIcons.chevron_compact_down),
-                            items: ['Books', 'Movies']
-                                .map((value) => DropdownMenuItem(
-                              value: value,
-                              child: Text(value),
-                            ))
-                                .toList(),
+                            items:  const [
+                              DropdownMenuItem(
+                                value: 'Books',
+                                child: Text('Books'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Movies',
+                                child: Text('Movies'),
+                              ),
+                            ],
                             onChanged: (value) {
-
+                              print('🔵 Dropdown changed to: $value');
+                              if (value != null) {
+                                setState(() {
+                                  print('🔴 Before setState - _selectedType: $_selectedType');
+                                  _selectedType = value;
+                                  print('🟡 After setState - _selectedType: $_selectedType');
+                                  _recommendations = [];
+                                  _error = null;
+                                });
+                              }
                             },
                           ),
                         ),
@@ -145,7 +167,7 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _isLoading ? null : _getRecommendations,
-              child: Text('Get ${widget.type} Recommendations'),
+              child: Text('Get ${_selectedType} Recommendations'),
             ),
             const SizedBox(height: 24),
             if (_isLoading)
@@ -173,7 +195,7 @@ class _MainScreenState extends State<MainScreen> {
                             if (rec.authorOrDirector != null) ...[
                               const SizedBox(height: 4),
                               Text(
-                                widget.type == 'Books' ? 'Author: ${rec.authorOrDirector}' : 'Director: ${rec.authorOrDirector}',
+                                _selectedType == 'Books' ? 'Author: ${rec.authorOrDirector}' : 'Director: ${rec.authorOrDirector}',
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[700]),
                               ),
                             ],
