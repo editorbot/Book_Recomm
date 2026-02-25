@@ -188,6 +188,27 @@ class _MainScreenState extends State<MainScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (rec.posterPath != null && rec.posterPath!.isNotEmpty)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Image.network(
+                                                                 _selectedType=='Books' ? rec.posterPath! :  'https://image.tmdb.org/t/p/w342${rec.posterPath}',  // w342 or w500 for good quality/size
+                                    width: 100,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>  Icon(  _selectedType=='Books'? Icons.book: Icons.movie, size: 100),
+                                  ),
+                                ),
+                              )
+                            else
+                              const SizedBox(
+                                width: 100,
+                                height: 150,
+                                child: Icon(Icons.movie, size: 80, color: Colors.grey),
+                              ),
+                            const SizedBox(width: 16),
                             Text(
                               rec.title,
                               style: Theme.of(context).textTheme.titleLarge,

@@ -4,6 +4,7 @@ class Recommendation {
   final String summaryOrPlot;
   final int matchScore;
   final List<String>? genres;       // only for movies, optional
+  final String? posterPath;  // for both
 
   Recommendation({
     required this.title,
@@ -11,6 +12,7 @@ class Recommendation {
     required this.summaryOrPlot,
     required this.matchScore,
     this.genres,
+    this.posterPath
   });
 
   // Factory to create from JSON (your Lambda returns this format)
@@ -21,6 +23,7 @@ class Recommendation {
       summaryOrPlot: json['summary_snippet']  ?? 'No description available',
       matchScore: json['score'] as int? ?? 0,
       genres: json['genres'] != null ? List<String>.from(json['genres']) : null,
+      posterPath: json['posterPath'] ?? 'No posters'
     );
   }
 }
