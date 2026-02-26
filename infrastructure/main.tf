@@ -1,13 +1,13 @@
 
 # DynamoDB Table (your interactions / users / items)
 resource "aws_dynamodb_table" "books" {
-name         = "$$   {var.project_name}-   $${var.dynamodb_table1_name}"
+name         = "Books"
 billing_mode = "PAY_PER_REQUEST"
 hash_key     = "bookId"       # Adjust to your actual keys
 # range_key    = "itemId"       # Example - change as per your schema
 
 attribute {
-name = "userId"
+name = "bookId"
 type = "S"
 }
 
@@ -19,12 +19,12 @@ type = "S"
 }
 
 resource "aws_dynamodb_table" "movies" {
-  name         = "$$   {var.project_name}-   $${var.dynamodb_table2_name}"
+  name         = "Movies"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "movieId"       # Adjust to your actual keys
   # range_key    = "itemId"       # Example - change as per your schema
   attribute {
-    name = "userId"
+    name = "movieId"
     type = "S"
   }
 
@@ -80,13 +80,26 @@ resource "aws_iam_role_policy" "dynamodb_access2" {
 
 resource "aws_lambda_function" "recommendation_books" {
 
-  function_name    = "${var.project_name}-BookRecommender"
+  function_name    = "BookRecommender"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"  # Your file.function name
-  runtime          = "python3.14"                       # Or python3.11 / 3.10
+  runtime          = "python3.13"                       # Or python3.11 / 3.10
   timeout          = 30
   memory_size      = 256
 
+  # Dummy to pass validation (small empty zip is fine)
+  filename = "dummy.zip"   # we'll create this tiny file next
+
+  # IMPORTANT: Ignore code changes so Terraform doesn't try to replace/re-upload
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,     # if you have this
+      s3_bucket,
+      s3_key,
+      image_uri,
+    ]
+  }
 
 
   environment {
@@ -98,14 +111,26 @@ resource "aws_lambda_function" "recommendation_books" {
 }
 resource "aws_lambda_function" "recommendation_movies" {
 
-  function_name    = "${var.project_name}-MovieRecommender"
+  function_name    = "MovieRecommender"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"  # Your file.function name
-  runtime          = "python3.14"                       # Or python3.11 / 3.10
+  runtime          = "python3.13"                       # Or python3.11 / 3.10
   timeout          = 3
   memory_size      = 256
 
+  # Dummy to pass validation (small empty zip is fine)
+  filename = "dummy.zip"   # we'll create this tiny file next
 
+  # IMPORTANT: Ignore code changes so Terraform doesn't try to replace/re-upload
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,     # if you have this
+      s3_bucket,
+      s3_key,
+      image_uri,
+    ]
+  }
 
   environment {
     variables = {
@@ -116,14 +141,26 @@ resource "aws_lambda_function" "recommendation_movies" {
 }
 resource "aws_lambda_function" "preprocess_lambda" {
 
-  function_name    = "${var.project_name}-preProcess"
+  function_name    = "preProcess"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"  # Your file.function name
-  runtime          = "python3.14"                       # Or python3.11 / 3.10
+  runtime          = "python3.13"                       # Or python3.11 / 3.10
   timeout          = 30
   memory_size      = 256
 
+  # Dummy to pass validation (small empty zip is fine)
+  filename = "dummy.zip"   # we'll create this tiny file next
 
+  # IMPORTANT: Ignore code changes so Terraform doesn't try to replace/re-upload
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,     # if you have this
+      s3_bucket,
+      s3_key,
+      image_uri,
+    ]
+  }
 
   environment {
     variables = {
@@ -135,14 +172,26 @@ resource "aws_lambda_function" "preprocess_lambda" {
 }
 resource "aws_lambda_function" "ingesterbook_lambda" {
 
-  function_name    = "${var.project_name}-Bookingester"
+  function_name    = "Bookingester"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"  # Your file.function name
-  runtime          = "python3.14"                       # Or python3.11 / 3.10
+  runtime          = "python3.13"                       # Or python3.11 / 3.10
   timeout          = 30
   memory_size      = 256
 
+  # Dummy to pass validation (small empty zip is fine)
+  filename = "dummy.zip"   # we'll create this tiny file next
 
+  # IMPORTANT: Ignore code changes so Terraform doesn't try to replace/re-upload
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,     # if you have this
+      s3_bucket,
+      s3_key,
+      image_uri,
+    ]
+  }
 
   environment {
     variables = {
@@ -153,14 +202,26 @@ resource "aws_lambda_function" "ingesterbook_lambda" {
 }
 resource "aws_lambda_function" "ingestermovie_lambda" {
 
-  function_name    = "${var.project_name}-Movieingester"
+  function_name    = "Movieingester"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.lambda_handler"  # Your file.function name
-  runtime          = "python3.14"                       # Or python3.11 / 3.10
+  runtime          = "python3.13"                       # Or python3.11 / 3.10
   timeout          = 30
   memory_size      = 256
 
+  # Dummy to pass validation (small empty zip is fine)
+  filename = "dummy.zip"   # we'll create this tiny file next
 
+  # IMPORTANT: Ignore code changes so Terraform doesn't try to replace/re-upload
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,     # if you have this
+      s3_bucket,
+      s3_key,
+      image_uri,
+    ]
+  }
 
   environment {
     variables = {
