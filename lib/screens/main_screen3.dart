@@ -1,8 +1,13 @@
+import 'dart:convert';
+
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:aws_book/models/recommendation.dart';
 import 'package:aws_book/services/recommendation_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:http/http.dart' as http;
 
 class RecScreen extends StatefulWidget {
   final String type; // 'Books' or 'Movies'
@@ -114,7 +119,9 @@ class _RecScreenState extends State<RecScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Amplify.Auth.signOut();
+              },
               icon: const Icon(Icons.logout),
             ),
           ),
@@ -257,6 +264,38 @@ class _RecScreenState extends State<RecScreen> {
 
             const SizedBox(height: 24),
 
+            ElevatedButton(
+              onPressed: () async {
+                final session = await Amplify.Auth.fetchAuthSession() as CognitoAuthSession;
+
+                final accessToken = session.userPoolTokensResult.value.accessToken.raw ?? '';
+                final idToken = session.userPoolTokensResult.value.idToken.raw ?? '';
+
+                print('Access Token: $accessToken');
+                print('ID Token: $idToken');
+
+                var response = await http.post(
+                  Uri.parse('https://nl2al3np1l.execute-api.us-east-1.amazonaws.com/prod/recommend'),
+                  headers: {
+                    'Authorization': 'Bearer $accessToken',
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({'preferences': ['test']}),
+                );
+                print('With Access Token → ${response.statusCode} | ${response.body}');
+
+                response = await http.post(
+                  Uri.parse('https://nl2al3np1l.execute-api.us-east-1.amazonaws.com/prod/recommend'),
+                  headers: {
+                    'Authorization': 'Bearer $idToken',
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({'preferences': ['test']}),
+                );
+                print('With ID Token → ${response.statusCode} | ${response.body}');
+              },
+              child: Text("Test"),
+            ),
             // ── Loading / Error / Results ──────────────────────────────
             if (_isLoading)
               const Center(
